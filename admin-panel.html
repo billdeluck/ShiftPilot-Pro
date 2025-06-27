@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - ShiftPilot Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Admin Panel</h1>
+            <nav>
+                <a href="index.html" class="nav-link" id="nav-calendar">Calendar</a>
+                <a href="settings.html" class="nav-link" id="nav-settings">Settings</a>
+                <a href="import.html" class="nav-link" id="nav-import">Import Data</a>
+                <a href="reports.html" class="nav-link" id="nav-reports">Reports</a>
+                <a href="admin-panel.html" class="nav-link" id="admin-panel-link">Admin Panel</a>
+                <button id="logout-btn" class="nav-link">Logout</button>
+            </nav>
+        </header>
+
+        <main class="admin-content">
+            <section class="admin-section">
+                <h2>Manage Users</h2>
+                <table id="users-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- User rows will be generated here -->
+                    </tbody>
+                </table>
+                <div class="add-form">
+                    <h3>Add New User</h3>
+                    <input type="text" id="new-user-username" placeholder="Username">
+                    <input type="password" id="new-user-password" placeholder="Password">
+                    <select id="new-user-role"></select>
+                    <button id="add-user-btn">Add User</button>
+                    <p id="user-message" class="error-message"></p>
+                </div>
+            </section>
+
+            <!-- Future Admin Sections (e.g., Audit Logs, Global Policies) -->
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Check user role on page load
+            const currentUser = Auth.getCurrentUser();
+            if (!currentUser || currentUser.role !== 'Super Admin') {
+                alert('Access Denied: You must be a Super Admin to access this page.');
+                window.location.href = 'index.html';
+                return;
+            }
+            // Highlight current page
+            const path = window.location.pathname.split('/').pop();
+            $(".nav-link").removeClass('active');
+            if (path.includes('index')) $('#nav-calendar').addClass('active');
+            if (path.includes('settings')) $('#nav-settings').addClass('active');
+            if (path.includes('import')) $('#nav-import').addClass('active');
+</body>
+</html>

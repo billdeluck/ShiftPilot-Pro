@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ShiftPilot Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container login-container">
+        <header class="app-header">
+            <h1>ShiftPilot Pro Login</h1>
+        </header>
+
+        <main class="login-content">
+            <section class="login-section">
+                <h2>Login</h2>
+                <div class="login-form">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" placeholder="Enter your username">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                    <button id="login-btn">Login</button>
+                    <p id="login-message" class="error-message"></p>
+                </div>
+                <p class="register-link">Don't have an account? <a href="#" id="show-register">Register here</a></p>
+            </section>
+
+            <section class="register-section" style="display:none;">
+                <h2>Register Super Admin</h2>
+                <div class="register-form">
+                    <label for="reg-username">Username:</label>
+                    <input type="text" id="reg-username" placeholder="Choose a username">
+                    <label for="reg-password">Password:</label>
+                    <input type="password" id="reg-password" placeholder="Choose a password">
+                    <label for="reg-confirm-password">Confirm Password:</label>
+                    <input type="password" id="reg-confirm-password" placeholder="Confirm your password">
+                    <button id="register-btn">Register</button>
+                    <p id="register-message" class="error-message"></p>
+                </div>
+                <p class="login-link">Already have an account? <a href="#" id="show-login">Login here</a></p>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

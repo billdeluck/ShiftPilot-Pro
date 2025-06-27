@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Data - ShiftPilot Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Import Employee Data</h1>
+            <nav>
+                <a href="index.html" class="nav-link" id="nav-calendar">Calendar</a>
+                <a href="settings.html" class="nav-link" id="nav-settings">Settings</a>
+                <a href="import.html" class="nav-link" id="nav-import">Import Data</a>
+                <a href="reports.html" class="nav-link" id="nav-reports">Reports</a>
+                <a href="admin-panel.html" class="nav-link" id="admin-panel-link" style="display:none;">Admin Panel</a>
+                <button id="logout-btn" class="nav-link">Logout</button>
+            </nav>
+        </header>
+
+        <main class="import-content">
+            <section class="import-section">
+                <h2>Upload or Paste Employee Data</h2>
+                <div class="upload-area" id="drag-drop-area">
+                    <p>Drag & Drop CSV, XLSX, or JSON file here</p>
+                    <p>or</p>
+                    <input type="file" id="file-input" accept=".csv, .xlsx, .json">
+                    <button id="upload-btn">Upload File</button>
+                </div>
+                <div class="paste-area">
+                    <h3>Or Paste Data (e.g., from Excel)</h3>
+                    <textarea id="paste-data-input" placeholder="Paste your CSV, TSV, or JSON data here..."></textarea>
+                    <button id="paste-btn">Process Pasted Data</button>
+                </div>
+            </section>
+
+            <section class="import-section" id="field-mapping-section" style="display:none;">
+                <h2>Field Mapping</h2>
+                <p>Map your imported columns to system fields:</p>
+                <table id="mapping-table">
+                    <thead>
+                        <tr>
+                            <th>Imported Column</th>
+                            <th>System Field</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Mapping rows will be generated here -->
+                    </tbody>
+                </table>
+                <button id="confirm-mapping-btn">Confirm Mapping</button>
+            </section>
+
+            <section class="import-section" id="preview-validation-section" style="display:none;">
+                <h2>Preview & Validation</h2>
+                <div id="import-summary"></div>
+                <table id="preview-table">
+                    <thead>
+                        <!-- Headers will be generated here -->
+                    </thead>
+                    <tbody>
+                        <!-- Data rows will be generated here -->
+                    </tbody>
+                </table>
+                <button id="save-imported-data-btn">Save Imported Data</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Check authentication on page load
+            const currentUser = Auth.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            // Show/hide admin panel link based on role
+            if (currentUser.role === 'Super Admin') {
+                $('#admin-panel-link').show();
+            }
+            // Highlight current page
+            const path = window.location.pathname.split('/').pop();
+            $(".nav-link").removeClass('active');
+            if (path.includes('index')) $('#nav-calendar').addClass('active');
+            if (path.includes('settings')) $('#nav-settings').addClass('active');
+            if (path.includes('import')) $('#nav-import').addClass('active');
+            if (path.includes('reports')) $('#nav-reports').addClass('active');
+            // Logout button handler
+            $('#logout-btn').on('click', function() { Auth.logout(); });
+        });
+    </script>
+</body>
+</html>

@@ -12,11 +12,14 @@
         <!-- Header -->
         <header class="app-header">
             <h1>ShiftPilot Pro</h1>
-            <div class="calendar-nav">
-                <button id="prev-month-btn">< Prev</button>
-                <h2 id="current-month-year"></h2>
-                <button id="next-month-btn">Next ></button>
-            </div>
+            <nav>
+                <a href="index.html" class="nav-link" id="nav-calendar">Calendar</a>
+                <a href="settings.html" class="nav-link" id="nav-settings">Settings</a>
+                <a href="import.html" class="nav-link" id="nav-import">Import Data</a>
+                <a href="reports.html" class="nav-link" id="nav-reports">Reports</a>
+                <a href="admin-panel.html" class="nav-link" id="admin-panel-link" style="display:none;">Admin Panel</a>
+                <button id="logout-btn" class="nav-link">Logout</button>
+            </nav>
         </header>
 
         <!-- Main Content -->
@@ -61,8 +64,29 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="js/data-manager.js"></script>
-    <script src="js/calendar.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Check authentication on page load
+            const currentUser = Auth.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            // Show/hide admin panel link based on role
+            if (currentUser.role === 'Super Admin') {
+                $('#admin-panel-link').show();
+            }
+            // Highlight current page
+            const path = window.location.pathname.split('/').pop();
+            $(".nav-link").removeClass('active');
+            if (path.includes('index')) $('#nav-calendar').addClass('active');
+            if (path.includes('settings')) $('#nav-settings').addClass('active');
+            if (path.includes('import')) $('#nav-import').addClass('active');
+            if (path.includes('reports')) $('#nav-reports').addClass('active');
+            // Logout button handler
+            $('#logout-btn').on('click', function() { Auth.logout(); });
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - ShiftPilot Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>ShiftPilot Pro Settings</h1>
+            <nav>
+                <a href="index.html" class="nav-link">Back to Calendar</a>
+                <a href="import.html" class="nav-link">Import Data</a>
+                <a href="admin-panel.html" class="nav-link" id="admin-panel-link" style="display:none;">Admin Panel</a>
+                <button id="logout-btn" class="nav-link">Logout</button>
+            </nav>
+        </header>
+
+        <main class="settings-content">
+            <!-- Employee Management -->
+            <section class="settings-section">
+                <h2>Manage Employees</h2>
+                <table id="employees-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody><!-- Employee rows will be generated here --></tbody>
+                </table>
+                <div class="add-form">
+                    <h3>Add New Employee</h3>
+                    <input type="text" id="new-employee-name" placeholder="Employee Name">
+                    <select id="new-employee-role"></select>
+                    <button id="add-employee-btn">Add Employee</button>
+                </div>
+            </section>
+
+            <!-- Role Management -->
+            <section class="settings-section">
+                <h2>Manage Roles</h2>
+                <ul id="roles-list"></ul>
+                <div class="add-form">
+                    <h3>Add New Role</h3>
+                    <input type="text" id="new-role-name" placeholder="Role Name (e.g., Supervisor)">
+                    <button id="add-role-btn">Add Role</button>
+                </div>
+            </section>
+
+            <!-- Shift Type Management -->
+            <section class="settings-section">
+                <h2>Manage Shift Types</h2>
+                <ul id="shifttypes-list"></ul>
+                <div class="add-form">
+                    <h3>Add New Shift Type</h3>
+                    <input type="text" id="new-shifttype-name" placeholder="Shift Name (e.g., Morning)">
+                    <input type="time" id="new-shifttype-start">
+                    <input type="time" id="new-shifttype-end">
+                    <button id="add-shifttype-btn">Add Shift Type</button>
+                </div>
+            </section>
+
+            <!-- Policy Settings -->
+            <section class="settings-section">
+                <h2>Policy Settings</h2>
+                <div class="policy-settings-grid">
+                    <div>
+                        <h3>Default Weekend Off-Days</h3>
+                        <label><input type="checkbox" id="default-off-saturday"> Saturday</label><br>
+                        <label><input type="checkbox" id="default-off-sunday"> Sunday</label>
+                    </div>
+                    <div>
+                        <h3>Employee Specific Off-Days</h3>
+                        <select id="employee-off-day-select"></select>
+                        <div id="employee-off-day-checkboxes">
+                            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Monday"> Mon</label>
+                            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Tuesday"> Tue</label>
+                            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Wednesday"> Wed</label>
+                            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Thursday"> Thu</label>
+                            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Friday"> Fri</label>
+                            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Saturday"> Sat</label>
+                            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Sunday"> Sun</label>
+                        </div>
+                        <button id="save-employee-off-days-btn">Save Employee Off-Days</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Backup Settings -->
+            <section class="settings-section">
+                <h2>Data Backup & Restore</h2>
+                <div class="backup-options">
+                    <button id="create-backup-btn">Create Password-Protected Backup (ZIP)</button>
+                    <input type="password" id="backup-password" placeholder="Enter backup password">
+                    <p>
+                        <input type="file" id="restore-file-input" accept=".zip">
+                        <button id="restore-backup-btn">Restore from Backup</button>
+                    </p>
+                    <p class="note">Note: Restoring will overwrite current data. Use with caution.</p>
+                </div>
+            </section>
+
+            <!-- Custom Color Settings -->
+            <section class="settings-section">
+                <h2>Custom Color Settings</h2>
+                <div class="color-settings-grid">
+                    <label>Primary Color: <input type="color" id="primary-color-picker"></label>
+                    <label>Secondary Color: <input type="color" id="secondary-color-picker"></label>
+                    <label>Danger Color: <input type="color" id="danger-color-picker"></label>
+                    <button id="save-color-settings-btn">Save Colors</button>
+                </div>
+            </section>
+
+            <!-- API Settings -->
+            <section class="settings-section">
+                <h2>API Settings</h2>
+                <div class="api-settings-grid">
+                    <label>Gemini API Key: <input type="text" id="gemini-api-key" placeholder="Enter Gemini API Key"></label>
+                    <label>Google Drive OAuth Client ID: <input type="text" id="gdrive-client-id" placeholder="Enter Google Drive Client ID"></label>
+                    <button id="save-api-settings-btn">Save API Settings</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://gildas-lormeau.github.io/zip.js/demos/lib/zip.min.js"></script>
+    <script src="js/auth.js"></script> <!-- Include auth.js -->
+    <script src="js/backup.js"></script>
+    <script src="js/settings.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Check authentication on page load
+            const currentUser = Auth.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = 'login.html'; // Redirect to login if not logged in
+                return;
+            }
+
+            // Show/hide admin panel link based on role
+            if (currentUser.role === 'Super Admin') {
+                $('#admin-panel-link').show();
+            }
+
+            // Logout button handler
+            $('#logout-btn').on('click', function() {
+                Auth.logout();
+            });
+        });
+    </script>
+</body>
+</html>

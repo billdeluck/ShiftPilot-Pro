@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - ShiftPilot Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Reports</h1>
+            <nav>
+                <a href="index.html" class="nav-link">Back to Calendar</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+                <button id="logout-btn" class="nav-link">Logout</button>
+            </nav>
+        </header>
+        <main class="reports-content">
+            <section class="reports-section">
+                <h2>Staff Summary</h2>
+                <div id="staff-summary"></div>
+            </section>
+            <section class="reports-section">
+                <h2>Missed Shifts</h2>
+                <div id="missed-shifts"></div>
+            </section>
+            <section class="reports-section">
+                <h2>Cover-Up</h2>
+                <div id="cover-up"></div>
+            </section>
+            <section class="reports-section">
+                <h2>Salary Deduction</h2>
+                <div id="salary-deduction"></div>
+            </section>
+            <section class="reports-section">
+                <h2>Charts</h2>
+                <canvas id="report-chart"></canvas>
+            </section>
+        </main>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/reports.js"></script>
+    <script>
+        $(document).ready(function() {
+            const currentUser = Auth.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            $('#logout-btn').on('click', function() { Auth.logout(); });
+        });
+    </script>
+</body>
+</html>

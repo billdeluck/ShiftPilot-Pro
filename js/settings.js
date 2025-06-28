@@ -149,7 +149,19 @@ $(document).ready(function() {
      }
 
     // --- HANDLERS ---
+    // RBAC utility
+    function hasRole(roles) {
+        const user = Auth.getCurrentUser();
+        if (!user) return false;
+        if (Array.isArray(roles)) return roles.includes(user.role);
+        return user.role === roles;
+    }
+
     function addEmployee() {
+        if (!hasRole(['HR', 'Super Admin'])) {
+            alert('You do not have permission to add employees.');
+            return;
+        }
         const name = $('#new-employee-name').val().trim();
         const roleId = $('#new-employee-role').val();
         if (name && roleId) {
@@ -162,6 +174,10 @@ $(document).ready(function() {
     }
 
     function addRole() {
+        if (!hasRole(['HR', 'Super Admin'])) {
+            alert('You do not have permission to add roles.');
+            return;
+        }
         const name = $('#new-role-name').val().trim();
         if (name) {
             settings.roles.push({ id: `role_${Date.now()}`, name });
@@ -171,6 +187,10 @@ $(document).ready(function() {
     }
 
     function addShiftType() {
+        if (!hasRole(['HR', 'Super Admin'])) {
+            alert('You do not have permission to add shift types.');
+            return;
+        }
         const name = $('#new-shifttype-name').val().trim();
         const startTime = $('#new-shifttype-start').val();
         const endTime = $('#new-shifttype-end').val();
@@ -238,6 +258,10 @@ $(document).ready(function() {
     }
 
     function handleDelete(e) {
+        if (!hasRole(['HR', 'Super Admin'])) {
+            alert('You do not have permission to delete items.');
+            return;
+        }
         const target = $(e.target);
         const id = target.data('id');
         const type = target.data('type');
@@ -321,4 +345,10 @@ $(document).ready(function() {
 
     init();
     applyColorSettings();
+
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'shiftPilotPro_settings') {
+        location.reload();
+      }
+    });
 });

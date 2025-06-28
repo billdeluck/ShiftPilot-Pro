@@ -1,0 +1,54 @@
+{
+  "settings": {
+    "id": "main",
+    "employees": [
+      {"id": "emp_1", "name": "Alice Smith", "roleId": "role_1", "email": "alice@company.com"},
+      {"id": "emp_2", "name": "Bob Jones", "roleId": "role_2", "email": "bob@company.com"},
+      {"id": "emp_3", "name": "Carol Lee", "roleId": "role_2", "email": "carol@company.com"},
+      {"id": "emp_4", "name": "David Kim", "roleId": "role_3", "email": "david@company.com"}
+    ],
+    "roles": [
+      {"id": "role_1", "name": "Manager"},
+      {"id": "role_2", "name": "Staff"},
+      {"id": "role_3", "name": "Temp"}
+    ],
+    "shiftTypes": [
+      {"id": "st_1", "name": "Morning", "startTime": "08:00", "endTime": "16:00"},
+      {"id": "st_2", "name": "Evening", "startTime": "16:00", "endTime": "00:00"},
+      {"id": "st_3", "name": "Night", "startTime": "00:00", "endTime": "08:00"}
+    ],
+    "policy": {
+      "defaultOffDays": ["Saturday", "Sunday"],
+      "employeeOffDays": {"emp_1": ["Sunday"], "emp_2": ["Saturday"], "emp_3": [], "emp_4": ["Sunday"]}
+    }
+  },
+  "shifts": [
+    {"date": "2025-06-27", "shifts": [
+      {"id": "shift_1", "employeeId": "emp_1", "employeeName": "Alice Smith", "shiftType": "Morning", "date": "2025-06-27", "status": "Scheduled"},
+      {"id": "shift_2", "employeeId": "emp_2", "employeeName": "Bob Jones", "shiftType": "Evening", "date": "2025-06-27", "status": "Scheduled"},
+      {"id": "shift_3", "employeeId": "emp_3", "employeeName": "Carol Lee", "shiftType": "Night", "date": "2025-06-27", "status": "Scheduled"}
+    ]},
+    {"date": "2025-06-28", "shifts": [
+      {"id": "shift_4", "employeeId": "emp_2", "employeeName": "Bob Jones", "shiftType": "Morning", "date": "2025-06-28", "status": "Scheduled"},
+      {"id": "shift_5", "employeeId": "emp_3", "employeeName": "Carol Lee", "shiftType": "Evening", "date": "2025-06-28", "status": "Sick", "coveredBy": null},
+      {"id": "shift_6", "employeeId": "emp_4", "employeeName": "David Kim", "shiftType": "Night", "date": "2025-06-28", "status": "Open"}
+    ]},
+    {"date": "2025-06-29", "shifts": [
+      {"id": "shift_7", "employeeId": "emp_1", "employeeName": "Alice Smith", "shiftType": "Morning", "date": "2025-06-29", "status": "Scheduled"},
+      {"id": "shift_8", "employeeId": "emp_2", "employeeName": "Bob Jones", "shiftType": "Evening", "date": "2025-06-29", "status": "SwapRequested", "swapWith": "emp_3"},
+      {"id": "shift_9", "employeeId": "emp_3", "employeeName": "Carol Lee", "shiftType": "Night", "date": "2025-06-29", "status": "Scheduled"}
+    ]},
+    {"date": "2025-06-30", "shifts": [
+      {"id": "shift_10", "employeeId": "emp_4", "employeeName": "David Kim", "shiftType": "Morning", "date": "2025-06-30", "status": "Scheduled"},
+      {"id": "shift_11", "employeeId": "emp_1", "employeeName": "Alice Smith", "shiftType": "Evening", "date": "2025-06-30", "status": "Scheduled"},
+      {"id": "shift_12", "employeeId": "emp_2", "employeeName": "Bob Jones", "shiftType": "Night", "date": "2025-06-30", "status": "Covered", "coveredBy": "emp_4"}
+    ]}
+  ],
+  "auditLog": [
+    {"action": "Add Shift", "details": {"date": "2025-06-27", "shift": {"id": "shift_1", "employeeId": "emp_1", "shiftType": "Morning", "status": "Scheduled"}}, "user": "Admin", "time": "2025-06-27T08:00:00Z"},
+    {"action": "Edit Shift", "details": {"shiftId": "shift_5", "status": "Sick"}, "user": "Manager", "time": "2025-06-28T09:00:00Z"},
+    {"action": "Swap Request", "details": {"shiftId": "shift_8", "from": "emp_2", "to": "emp_3"}, "user": "Bob Jones", "time": "2025-06-29T10:00:00Z"},
+    {"action": "Approve Swap", "details": {"shiftId": "shift_8", "approvedBy": "Manager"}, "user": "Manager", "time": "2025-06-29T11:00:00Z"},
+    {"action": "Cover Shift", "details": {"shiftId": "shift_12", "coveredBy": "emp_4"}, "user": "Admin", "time": "2025-06-30T12:00:00Z"}
+  ]
+}

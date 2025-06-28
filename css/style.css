@@ -304,3 +304,550 @@ button:hover {
     flex-direction: column;
     gap: 4px;
 }
+
+/* Responsive navigation bar styles */
+#main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--nav-bg, #222);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+#main-nav .nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+#main-nav .nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+}
+#main-nav .nav-links a {
+  color: #fff;
+  text-decoration: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+#main-nav .nav-links a.active, #main-nav .nav-links a:hover {
+  background: var(--nav-active, #007bff);
+  color: #fff;
+}
+@media (max-width: 600px) {
+  #main-nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  #main-nav .nav-links {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+  }
+  #main-nav .nav-links a {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Chat Side Button */
+.chat-side-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--primary-color, #4a90e2);
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  color: #fff;
+  cursor: pointer;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.chat-side-btn:hover {
+  background: var(--nav-active, #007bff);
+}
+
+/* Chat Panel */
+.chat-panel {
+  position: fixed;
+  bottom: 4.5rem;
+  right: 2rem;
+  width: 350px;
+  max-width: 95vw;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  z-index: 1300;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+.chat-header {
+  background: var(--primary-color, #4a90e2);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+#close-chat-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.chat-messages {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background: #f7f9fa;
+  font-size: 0.98rem;
+}
+.chat-msg {
+  margin-bottom: 0.7em;
+}
+.chat-msg.You {
+  text-align: right;
+  color: #333;
+}
+.chat-msg.AI {
+  text-align: left;
+  color: var(--primary-color, #4a90e2);
+}
+#chat-form {
+  display: flex;
+  border-top: 1px solid #e0e0e0;
+  background: #fff;
+}
+#chat-input {
+  flex: 1;
+  border: none;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  outline: none;
+}
+#chat-form button[type="submit"] {
+  background: var(--primary-color, #4a90e2);
+  color: #fff;
+  border: none;
+  padding: 0 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 0 0 0 0;
+  transition: background 0.2s;
+}
+#chat-form button[type="submit"]:hover {
+  background: var(--nav-active, #007bff);
+}
+@media (max-width: 600px) {
+  .chat-panel {
+    right: 0.5rem;
+    width: 98vw;
+    bottom: 0.5rem;
+  }
+  .chat-side-btn {
+    right: 0.5rem;
+    bottom: 0.5rem;
+  }
+}
+/* Profile Section Styles */
+.profile-section {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.profile-section h2 {
+    margin-bottom: 10px;
+}
+
+/* Key Metrics Section Styles */
+.key-metrics-section {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.metric-card {
+    text-align: center;
+}
+
+.metric-card h3 {
+    margin-bottom: 5px;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .key-metrics-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .metric-card {
+        margin-bottom: 15px;
+    }
+}
+/* My Upcoming Shifts Section */
+.my-upcoming-shifts-section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.my-upcoming-shifts-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+#my-shifts-list {
+    list-style: none;
+    padding: 0;
+}
+
+#my-shifts-list li {
+    background-color: #eaf2fb;
+    border: 1px solid #c9dff7;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+}
+
+/* Quick Actions Section */
+.quick-actions-section {
+    padding: 20px;
+    text-align: center;
+}
+
+.quick-actions-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.action-buttons button {
+    flex: 1 1 auto; /* Allow buttons to grow and shrink */
+    max-width: 200px; /* Max width for larger screens */
+    padding: 12px 20px;
+    font-size: 1em;
+}
+
+/* Responsive adjustments for new sections */
+@media (max-width: 768px) {
+    .my-upcoming-shifts-section,
+    .quick-actions-section {
+        padding: 15px;
+    }
+
+    .action-buttons button {
+        max-width: none; /* Full width on small screens */
+        width: 100%;
+    }
+}
+
+/* Responsive Dashboard Widgets Grid */
+.dashboard-widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    padding: 2rem 1rem;
+}
+.widget {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 1.5rem 1.2rem;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    transition: box-shadow 0.2s;
+}
+.widget h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2em;
+    color: var(--primary-color);
+}
+.widget ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.widget li {
+    margin-bottom: 0.5em;
+    font-size: 1em;
+    line-height: 1.5;
+}
+#workload-bar-chart {
+    width: 100% !important;
+    max-width: 100%;
+}
+
+/* Responsive Nav Bar */
+#main-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--primary-color);
+    color: #fff;
+    padding: 0.5rem 1.5rem;
+    position: relative;
+}
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.nav-links li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 0.8rem;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+.nav-links li a.active, .nav-links li a:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* Hamburger menu for small screens */
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    margin-left: 1rem;
+}
+.nav-toggle span {
+    width: 28px;
+    height: 3px;
+    background: #fff;
+    margin: 4px 0;
+    border-radius: 2px;
+    transition: 0.3s;
+}
+@media (max-width: 800px) {
+    .dashboard-widgets-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+        padding: 1rem 0.2rem;
+    }
+    #main-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0.5rem 0.7rem;
+    }
+    .nav-links {
+        flex-direction: column;
+        width: 100%;
+        display: none;
+        background: var(--primary-color);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 10;
+    }
+    .nav-links.open {
+        display: flex;
+    }
+    .nav-toggle {
+        display: flex;
+    }
+}
+
+/* High Contrast Mode */
+body.high-contrast, .high-contrast body {
+  background: #000 !important;
+  color: #fff !important;
+}
+.high-contrast .app-container, .high-contrast .settings-content, .high-contrast .settings-section, .high-contrast .modal-content {
+  background: #111 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+.high-contrast th, .high-contrast td, .high-contrast table, .high-contrast .settings-section th, .high-contrast .settings-section td {
+  background: #222 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+.high-contrast button, .high-contrast .delete-btn {
+  background: #fff !important;
+  color: #000 !important;
+  border: 2px solid #fff !important;
+}
+.high-contrast input, .high-contrast select {
+  background: #222 !important;
+  color: #fff !important;
+  border: 1px solid #fff !important;
+}
+
+/* Mobile-first enhancements */
+@media (max-width: 600px) {
+  .container, .app-container, .settings-content {
+    padding: 4px !important;
+  }
+  #shift-management-controls {
+    flex-direction: column;
+    gap: 0.5em;
+    align-items: stretch;
+  }
+  #shift-management-controls > * {
+    margin: 0.2em 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  #shift-table th, #shift-table td {
+    font-size: 0.95em;
+    padding: 6px 2px;
+  }
+  #shift-table {
+    font-size: 0.95em;
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+  }
+}
+
+/* Focus styles for accessibility */
+:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+#shift-table [tabindex="0"]:focus {
+  outline: 2px solid var(--danger-color);
+}
+
+/* Hide visually but keep accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+/* Auth Card Styles */
+.auth-card-wrapper {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    padding: 32px 28px 24px 28px;
+    min-width: 320px;
+    max-width: 370px;
+    margin: 0 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.auth-card h2 {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.auth-card label {
+    margin-top: 10px;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.auth-card input[type="text"],
+.auth-card input[type="password"] {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+.auth-card button {
+    margin-top: 12px;
+    width: 100%;
+    font-size: 1em;
+}
+
+.auth-card .error-message {
+    color: var(--danger-color);
+    margin-top: 8px;
+    min-height: 20px;
+}
+
+.auth-card .register-link,
+.auth-card .login-link {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 0.98em;
+}
+
+.alt-login-btn {
+    background: #f5f7fa;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+.alt-login-btn:hover {
+    background: #eaf2fb;
+}
+
+@media (max-width: 600px) {
+    .auth-card {
+        min-width: 90vw;
+        max-width: 98vw;
+        padding: 18px 6vw 18px 6vw;
+    }
+    .auth-card-wrapper {
+        min-height: 70vh;
+    }
+}

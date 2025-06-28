@@ -38,21 +38,20 @@ $(document).ready(function() {
     checkFirstRun();
 
     // --- Functions ---
+    // Only show Super Admin registration if no users exist
     function checkFirstRun() {
         const users = JSON.parse(localStorage.getItem('shiftPilotPro_users') || '[]');
         if (users.length === 0) {
-            // No users, assume first run, show registration
-            $loginSection.hide();
-            $registerSection.show();
-            $showRegisterLink.hide(); // Hide register link on first run
-            $showLoginLink.hide(); // Hide login link on first run
-            $registerMessage.text('Welcome! Please register the Super Admin account.');
+            // No users, show Super Admin registration only
+            $('.login-section').hide();
+            $('.register-section').show();
+            $('#show-register, #show-login').hide();
+            $('#register-message').text('Welcome! Please register the Super Admin account.');
         } else {
-            // Users exist, show login
-            $loginSection.show();
-            $registerSection.hide();
-            $showRegisterLink.show();
-            $showLoginLink.show();
+            // Users exist, show login only
+            $('.login-section').show();
+            $('.register-section').hide();
+            $('#show-register, #show-login').hide();
         }
     }
 

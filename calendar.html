@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - ShiftPilot Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/nav-inject.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <main class="main-content">
+            <section class="calendar-section">
+                <div class="calendar-header">
+                    <button id="prev-month-btn">&lt;</button>
+                    <span id="current-month-year"></span>
+                    <button id="next-month-btn">&gt;</button>
+                </div>
+                <div id="calendar-grid" class="calendar-grid"></div>
+            </section>
+            <aside class="sidebar">
+                <h3>Employees</h3>
+                <ul id="employee-list"></ul>
+                <button id="export-csv-btn">Export Month to CSV</button>
+                <button id="open-shift-mgmt-btn" class="shift-mgmt-btn">Shift Management</button>
+            </aside>
+        </main>
+    </div>
+    <!-- Modals and Chat UI injected as in index.html -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/data-manager.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/shift-mgmt.js"></script>
+    <script>
+$(document).ready(function() {
+    // Enforce authentication for all nav links
+    $(document).on('click', 'a.nav-link', function(e) {
+        const currentUser = Auth.getCurrentUser();
+        if (!currentUser) {
+            e.preventDefault();
+            window.location.href = 'login.html';
+        }
+    });
+    // Show/hide admin panel link based on role
+    const currentUser = Auth.getCurrentUser();
+    if (currentUser && currentUser.role === 'Super Admin') {
+        $('#admin-panel-link').show();
+    }
+    // Highlight nav
+    const path = window.location.pathname.split('/').pop();
+    $(".nav-link").removeClass('active');
+    if (path === '' || path === 'calendar.html') $('#nav-calendar').addClass('active');
+    if (path.includes('settings')) $('#nav-settings').addClass('active');
+    if (path.includes('import')) $('#nav-import').addClass('active');
+    if (path.includes('reports')) $('#nav-reports').addClass('active');
+    // Logout
+    $('#logout-btn').on('click', function() { Auth.logout(); });
+    // Calendar rendering
+    if (typeof DataManager !== 'undefined' && typeof Calendar !== 'undefined') {
+        DataManager.loadData();
+        Calendar.render(new Date().getFullYear(), new Date().getMonth());
+    }
+});
+    </script>
+</body>
+</html>

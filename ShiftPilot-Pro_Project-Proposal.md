@@ -14,6 +14,7 @@ ShiftPilot Pro delivers:
 *   **AI-optional intelligent scheduling** for predictive, fair, and adaptive shift assignments.
 *   **Role-based, granular controls** allowing flexible weekend/holiday policies.
 *   **Secure encrypted backups** with Google Drive integration to ensure data safety.
+*   **Data consistency across devices**: Automatic or manual sync via Google Drive, ensuring all users (admins, managers) on different computers always have the latest data when online or by pressing a sync button.
 *   **Dynamic, extensible system configurations** that adapt to any business’s unique needs.
 *   **Conversational chat interface** for effortless interaction and on-the-fly rescheduling.
 *   **Detailed reporting** on coverage, absenteeism, and salary impact empowering HR decisions.
@@ -24,7 +25,7 @@ ShiftPilot Pro delivers:
 | :-------------- | :----------------------------------------------------------------------- |
 | UI Layer        | Responsive web front-end with calendar, chat, settings, reports.         |
 | Business Logic  | Shift rules engine, validation, role & policy enforcement.               |
-| Data Layer      | Local JSON/CSV storage, IndexedDB persistence, secure ZIP backups.       |
+| Data Layer      | Local JSON/CSV storage, IndexedDB persistence, secure ZIP backups, Google Drive sync for cross-device consistency. |
 | AI Integration  | Optional Gemini API integration for smart predictions and recommendations. |
 | Security Layer  | Role-based login, encrypted backups, permission checks.                  |
 
@@ -76,7 +77,7 @@ ShiftPilot Pro delivers:
 *   **Export as CSV / XLSX**.
 
 #### 4.5 Security & Backup
-*   **First-run admin onboarding** with secure credential creation.
+*   **First-run admin onboarding** with secure credential creation (Super Admin created once; cannot be replaced except by explicit reset).
 *   **Role-based access control**:
     *   **Super Admin** (full access)
     *   **Manager** (edit shifts, generate reports)
@@ -85,6 +86,7 @@ ShiftPilot Pro delivers:
 *   **Encrypted password-protected ZIP backup files** (AES encryption).
 *   **Auto-generate backup file names** (by date).
 *   **Optional Google Drive integration** for cloud sync and auto backup.
+*   **Data consistency across devices**: When a device comes online, it can auto-sync or manually sync with the latest data from Google Drive, ensuring all users have the most up-to-date information.
 *   **Offline-first file management** with auto-sync on connection.
 *   **Prevents data deletion without authorization**.
 *   **Optional biometric check** (future mobile build).
@@ -118,7 +120,7 @@ ShiftPilot Pro delivers:
 
 ### 5. System Setup & Operation
 #### First Run Experience
-*   Secure admin registration and initial system configuration.
+*   Secure admin registration and initial system configuration (Super Admin created once; all other users/roles managed by Super Admin).
 *   Mandatory shift and role setup prior to usage.
 *   Ability to add other users and assign roles (Manager, HR, Viewer).
 
@@ -126,6 +128,7 @@ ShiftPilot Pro delivers:
 *   Interactive scheduling via calendar or chat.
 *   Automated alerts for coverage issues.
 *   Backup management interface for manual or scheduled backups.
+*   Data sync interface for Google Drive: manual sync button and auto-sync when online, ensuring data consistency across all company devices.
 
 ### 6. Why This System Is Essential for Your Business
 *   **Cost-effective**: No expensive licenses or cloud dependency.
@@ -133,13 +136,14 @@ ShiftPilot Pro delivers:
 *   **User-Friendly**: Easy setup, simple interfaces tailored for non-technical users.
 *   **Flexible & Scalable**: Adaptable to many industries — retail, healthcare, manufacturing.
 *   **Offline Resilience**: Keeps your team productive regardless of connectivity.
+*   **Data Consistency**: All users, regardless of device, always have the latest data when online or after syncing.
 
 ### 7. Technical Stack
 *   **Frontend**: JavaScript, jQuery, HTML5, CSS3
 *   **Storage**: CSV, JSON, IndexedDB, localStorage
 *   **Backup**: ZIP files with AES encryption (via zip.js)
 *   **AI Integration**: Gemini API (optional)
-*   **Cloud Backup**: Google Drive OAuth integration
+*   **Cloud Backup & Sync**: Google Drive OAuth integration for cross-device data consistency
 
 ### 8. Future Extensions
 *   Mobile PWA version with biometric login.

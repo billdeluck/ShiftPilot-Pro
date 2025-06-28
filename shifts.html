@@ -1,0 +1,154 @@
+<!-- shifts.html: Shift Management Page for ShiftPilot Pro -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shift Management | ShiftPilot Pro</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- High Contrast Toggle -->
+  <button id="toggle-contrast-btn" aria-pressed="false" aria-label="Toggle high contrast mode" style="position:fixed;top:10px;right:10px;z-index:2000;">High Contrast</button>
+  <!-- Shared Navigation Bar -->
+  <div id="navbar-container"></div>
+
+  <main class="container">
+    <h1 id="shift-mgmt-title" tabindex="0">Shift Management</h1>
+    <div id="shift-management-controls" aria-label="Shift management controls">
+      <button id="add-shift-btn" aria-label="Add Shift">Add Shift</button>
+      <button id="bulk-ops-btn" aria-label="Bulk Operations">Bulk Operations</button>
+      <input type="text" id="shift-search" placeholder="Search shifts..." aria-label="Search shifts" style="margin-left:1em;">
+      <select id="filter-employee" aria-label="Filter by employee"></select>
+      <select id="filter-role" aria-label="Filter by role"></select>
+      <input type="date" id="filter-date" aria-label="Filter by date">
+      <select id="filter-status" aria-label="Filter by status">
+        <option value="">All Statuses</option>
+        <option value="">---</option>
+      </select>
+      <button id="print-roster-btn" style="margin-left:1em;" aria-label="Print or export PDF">Print/Export PDF</button>
+      <button id="view-audit-log-btn" aria-label="View audit log">Audit Log</button>
+      <div id="recurring-shift-controls" style="margin-top:1em;">
+        <label><input type="checkbox" id="recurring-checkbox"> Recurring Shift</label>
+        <select id="recurring-pattern" style="display:none;">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="custom">Custom Days</option>
+        </select>
+        <input type="date" id="multi-day-start" placeholder="Start Date" style="display:none;">
+        <input type="date" id="multi-day-end" placeholder="End Date" style="display:none;">
+      </div>
+    </div>
+    <div id="shift-management-widget">
+      <table id="shift-table" aria-label="Shift table" tabindex="0">
+        <thead>
+          <tr>
+            <th scope="col">Employee</th>
+            <th scope="col">Date</th>
+            <th scope="col">Shift Type</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Shift rows will be rendered here -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Shift Settings & Configuration Section (only shift-related settings) -->
+  <section class="settings-content">
+    <!-- Employee Management -->
+    <section class="settings-section">
+      <h2>Manage Employees</h2>
+      <table id="employees-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody><!-- Employee rows will be generated here --></tbody>
+      </table>
+      <div class="add-form">
+        <h3>Add New Employee</h3>
+        <input type="text" id="new-employee-name" placeholder="Employee Name">
+        <select id="new-employee-role"></select>
+        <button id="add-employee-btn">Add Employee</button>
+      </div>
+    </section>
+
+    <!-- Role Management -->
+    <section class="settings-section">
+      <h2>Manage Roles</h2>
+      <ul id="roles-list"></ul>
+      <div class="add-form">
+        <h3>Add New Role</h3>
+        <input type="text" id="new-role-name" placeholder="Role Name (e.g., Supervisor)">
+        <button id="add-role-btn">Add Role</button>
+      </div>
+    </section>
+
+    <!-- Shift Type Management -->
+    <section class="settings-section">
+      <h2>Manage Shift Types</h2>
+      <ul id="shifttypes-list"></ul>
+      <div class="add-form">
+        <h3>Add New Shift Type</h3>
+        <input type="text" id="new-shifttype-name" placeholder="Shift Name (e.g., Morning)">
+        <input type="time" id="new-shifttype-start">
+        <input type="time" id="new-shifttype-end">
+        <button id="add-shifttype-btn">Add Shift Type</button>
+      </div>
+    </section>
+
+    <!-- Policy Settings -->
+    <section class="settings-section">
+      <h2>Policy Settings</h2>
+      <div class="policy-settings-grid">
+        <div>
+          <h3>Default Weekend Off-Days</h3>
+          <label><input type="checkbox" id="default-off-saturday"> Saturday</label><br>
+          <label><input type="checkbox" id="default-off-sunday"> Sunday</label>
+        </div>
+        <div>
+          <h3>Employee Specific Off-Days</h3>
+          <select id="employee-off-day-select"></select>
+          <div id="employee-off-day-checkboxes">
+            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Monday"> Mon</label>
+            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Tuesday"> Tue</label>
+            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Wednesday"> Wed</label>
+            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Thursday"> Thu</label>
+            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Friday"> Fri</label>
+            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Saturday"> Sat</label>
+            <label><input type="checkbox" class="employee-off-day-checkbox" data-day="Sunday"> Sun</label>
+          </div>
+          <button id="save-employee-off-days-btn">Save Employee Off-Days</button>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- Shift Reminders Section -->
+  <section class="settings-section" id="reminders-section">
+    <h2>Shift Reminders & Notifications</h2>
+    <label><input type="checkbox" id="enable-shift-reminders"> Enable shift reminders</label><br>
+    <label>Remind me <input type="number" id="reminder-minutes" min="1" max="240" value="30" style="width:4em;"> minutes before each shift</label>
+    <button id="save-reminder-settings-btn">Save Reminder Settings</button>
+    <div id="reminder-status" style="margin-top:0.5em;color:#888;"></div>
+  </section>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/nav-inject.js"></script>
+  <script src="js/shift-mgmt.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    // Drag-and-drop and inline editing logic will be implemented in js/shift-mgmt.js
+  </script>
+</body>
+</html>

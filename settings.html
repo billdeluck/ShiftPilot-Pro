@@ -5,17 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - ShiftPilot Pro</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/nav-inject.js"></script> <!-- Injected navigation bar script -->
 </head>
 <body>
     <div class="app-container">
         <header class="app-header">
             <h1>ShiftPilot Pro Settings</h1>
-            <nav>
-                <a href="index.html" class="nav-link">Back to Calendar</a>
-                <a href="import.html" class="nav-link">Import Data</a>
-                <a href="admin-panel.html" class="nav-link" id="admin-panel-link" style="display:none;">Admin Panel</a>
-                <button id="logout-btn" class="nav-link">Logout</button>
-            </nav>
         </header>
 
         <main class="settings-content">
@@ -129,6 +124,7 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://gildas-lormeau.github.io/zip.js/demos/lib/zip.min.js"></script>
+    <script src="js/seed-data-loader.js"></script>
     <script src="js/auth.js"></script> <!-- Include auth.js -->
     <script src="js/backup.js"></script>
     <script src="js/settings.js"></script>

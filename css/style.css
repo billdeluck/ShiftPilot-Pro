@@ -851,3 +851,332 @@ body.high-contrast, .high-contrast body {
         min-height: 70vh;
     }
 }
+
+/* Advanced Settings Styles */
+
+/* Shift Rules Configuration */
+.shift-rules-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.shift-capacity-rules,
+.shift-constraints {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #fafafa;
+}
+
+.shift-capacity-rules h3,
+.shift-constraints h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    font-size: 1.1em;
+}
+
+#shift-capacity-table {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.add-capacity-rule {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.add-capacity-rule input,
+.add-capacity-rule select {
+    flex: 1;
+    min-width: 80px;
+    padding: 6px;
+    font-size: 0.9em;
+}
+
+.shift-constraints label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.shift-constraints input {
+    width: 80px;
+    margin-left: 8px;
+    padding: 4px 6px;
+}
+
+/* Shift Patterns & Templates */
+.shift-patterns-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.pattern-templates,
+.rotation-settings {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #fafafa;
+}
+
+.pattern-templates h3,
+.rotation-settings h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    font-size: 1.1em;
+}
+
+#shift-templates-table {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.add-template-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.add-template-form input,
+.add-template-form select,
+.add-template-form textarea {
+    padding: 6px;
+    font-size: 0.9em;
+}
+
+.add-template-form textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.rotation-settings label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.rotation-settings input,
+.rotation-settings select {
+    margin-left: 8px;
+    padding: 4px 6px;
+}
+
+.rotation-settings input[type="checkbox"] {
+    margin-left: 8px;
+    margin-right: 4px;
+}
+
+/* Department & Location Management */
+.dept-location-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.departments,
+.locations {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #fafafa;
+}
+
+.departments h3,
+.locations h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    font-size: 1.1em;
+}
+
+#departments-table,
+#locations-table {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.add-department-form,
+.add-location-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.add-department-form input,
+.add-department-form select,
+.add-location-form input,
+.add-location-form select {
+    padding: 6px;
+    font-size: 0.9em;
+}
+
+/* Compliance & Break Rules */
+.compliance-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.break-rules,
+.overtime-rules {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #fafafa;
+}
+
+.break-rules h3,
+.overtime-rules h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    font-size: 1.1em;
+}
+
+.break-rules label,
+.overtime-rules label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.break-rules input,
+.overtime-rules input {
+    margin-left: 8px;
+    padding: 4px 6px;
+    width: 80px;
+}
+
+.break-rules input[type="checkbox"],
+.overtime-rules input[type="checkbox"] {
+    width: auto;
+    margin-left: 8px;
+    margin-right: 4px;
+}
+
+/* Workflow Configuration */
+.workflow-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.swap-settings,
+.approval-workflow {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #fafafa;
+}
+
+.swap-settings h3,
+.approval-workflow h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    font-size: 1.1em;
+}
+
+.swap-settings label,
+.approval-workflow label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.swap-settings input,
+.swap-settings select,
+.approval-workflow input,
+.approval-workflow select {
+    margin-left: 8px;
+    padding: 4px 6px;
+}
+
+.swap-settings input[type="checkbox"],
+.approval-workflow input[type="checkbox"] {
+    width: auto;
+    margin-left: 8px;
+    margin-right: 4px;
+}
+
+/* Responsive Design for Advanced Settings */
+@media (max-width: 1024px) {
+    .shift-rules-grid,
+    .shift-patterns-grid,
+    .dept-location-grid,
+    .compliance-grid,
+    .workflow-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .add-capacity-rule {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .add-capacity-rule input,
+    .add-capacity-rule select {
+        flex: none;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 600px) {
+    .shift-capacity-rules,
+    .shift-constraints,
+    .pattern-templates,
+    .rotation-settings,
+    .departments,
+    .locations,
+    .break-rules,
+    .overtime-rules,
+    .swap-settings,
+    .approval-workflow {
+        padding: 10px;
+    }
+    
+    .add-template-form input,
+    .add-template-form select,
+    .add-template-form textarea,
+    .add-department-form input,
+    .add-department-form select,
+    .add-location-form input,
+    .add-location-form select {
+        margin-bottom: 8px;
+    }
+    
+    /* Make tables scroll horizontally on small screens */
+    #shift-capacity-table,
+    #shift-templates-table,
+    #departments-table,
+    #locations-table {
+        font-size: 0.85em;
+        overflow-x: auto;
+        display: block;
+    }
+    
+    #shift-capacity-table th,
+    #shift-capacity-table td,
+    #shift-templates-table th,
+    #shift-templates-table td,
+    #departments-table th,
+    #departments-table td,
+    #locations-table th,
+    #locations-table td {
+        padding: 4px 6px;
+        white-space: nowrap;
+    }
+}

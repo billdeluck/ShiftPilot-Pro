@@ -97,6 +97,261 @@ const DataManager = {
         return this.settings.policy || { defaultOffDays: [], employeeOffDays: {} };
     },
 
+    // --- ADVANCED SETTINGS GETTERS ---
+    
+    getShiftRules: function() {
+        return this.settings.shiftRules || {
+            capacityRules: [],
+            constraints: {
+                minHoursBetween: 8,
+                maxConsecutiveDays: 7,
+                maxWeeklyHours: 40,
+                maxDailyHours: 12
+            }
+        };
+    },
+
+    getShiftTemplates: function() {
+        return this.settings.shiftTemplates || [];
+    },
+
+    getRotationSettings: function() {
+        return this.settings.rotationSettings || {
+            enableAutoRotation: false,
+            rotationPeriod: 14,
+            rotationStartDate: null,
+            fairnessAlgorithm: 'round-robin'
+        };
+    },
+
+    getDepartments: function() {
+        return this.settings.departments || [];
+    },
+
+    getLocations: function() {
+        return this.settings.locations || [];
+    },
+
+    getComplianceSettings: function() {
+        return this.settings.compliance || {
+            breakRules: {
+                minBreakDuration: 15,
+                breakFrequency: 4,
+                mealBreakDuration: 30,
+                mealBreakAfter: 6,
+                unpaidMealBreaks: true
+            },
+            overtimeRules: {
+                regularDailyHours: 8,
+                regularWeeklyHours: 40,
+                overtimeRate: 1.5,
+                doubleTimeAfter: 12,
+                weekendOvertime: false,
+                holidayOvertime: true
+            }
+        };
+    },
+
+    getWorkflowSettings: function() {
+        return this.settings.workflows || {
+            shiftSwaps: {
+                enabled: true,
+                swapDeadline: 24,
+                maxPendingSwaps: 3,
+                approvalLevel: 'manager'
+            },
+            approvals: {
+                autoApproveSameRole: false,
+                requireDeptApproval: true,
+                approvalTimeout: 48,
+                notificationMethod: 'in-app'
+            }
+        };
+    },
+
+    // --- SHIFT VALIDATION METHODS ---
+
+    validateShiftAssignment: function(shift, employeeId, date) {
+        const employee = this.getEmployees().find(emp => emp.id === employeeId);
+        if (!employee) return { valid: false, reason: 'Employee not found' };
+
+        const shiftRules = this.getShiftRules();
+        const compliance = this.getComplianceSettings();
+        
+        // Check capacity rules
+        const capacityRule = shiftRules.capacityRules.find(rule => 
+            rule.shiftTypeId === shift.shiftTypeId && rule.roleId === employee.roleId
+        );
+        
+        if (capacityRule) {
+            const existingShifts = this.getShiftsForDate(date).filter(s => 
+                s.shiftTypeId === shift.shiftTypeId && 
+                this.getEmployees().find(emp => emp.id === s.employeeId)?.roleId === employee.roleId
+            );
+            
+            if (existingShifts.length >= capacityRule.maxAllowed) {
+                return { valid: false, reason: `Maximum capacity reached for this role in this shift` };
+            }
+        }
+
+        // Check time constraints
+        const constraints = shiftRules.constraints;
+        const employeeShifts = this.getAllShifts().filter(s => s.employeeId === employeeId);
+        
+        // Check maximum daily hours
+        const dailyShifts = this.getShiftsForDate(date).filter(s => s.employeeId === employeeId);
+        const dailyHours = dailyShifts.reduce((total, s) => {
+            const shiftType = this.getShiftTypes().find(st => st.id === s.shiftTypeId);
+            return total + this.calculateShiftDuration(shiftType);
+        }, 0) + this.calculateShiftDuration(this.getShiftTypes().find(st => st.id === shift.shiftTypeId));
+        
+        if (dailyHours > constraints.maxDailyHours) {
+            return { valid: false, reason: `Would exceed maximum daily hours (${constraints.maxDailyHours})` };
+        }
+
+        return { valid: true };
+    },
+
+    calculateShiftDuration: function(shiftType) {
+        if (!shiftType || !shiftType.startTime || !shiftType.endTime) return 0;
+        
+        const start = new Date(`2000-01-01 ${shiftType.startTime}`);
+        const end = new Date(`2000-01-01 ${shiftType.endTime}`);
+        
+        // Handle overnight shifts
+        if (end <= start) {
+            end.setDate(end.getDate() + 1);
+        }
+        
+        return (end - start) / (1000 * 60 * 60); // Hours
+    },
+
+    // --- SCHEDULING ALGORITHMS ---
+
+    suggestOptimalShiftAssignment: function(shiftTypeId, date, excludeEmployees = []) {
+        const shiftType = this.getShiftTypes().find(st => st.id === shiftTypeId);
+        if (!shiftType) return null;
+
+        const shiftRules = this.getShiftRules();
+        const rotationSettings = this.getRotationSettings();
+        
+        // Find capacity rules for this shift type
+        const capacityRules = shiftRules.capacityRules.filter(rule => rule.shiftTypeId === shiftTypeId);
+        
+        let suggestions = [];
+        
+        // For each role that has capacity rules for this shift
+        capacityRules.forEach(rule => {
+            const roleEmployees = this.getEmployees().filter(emp => 
+                emp.roleId === rule.roleId && 
+                !excludeEmployees.includes(emp.id)
+            );
+            
+            // Apply fairness algorithm
+            let sortedEmployees = [];
+            switch (rotationSettings.fairnessAlgorithm) {
+                case 'balanced-workload':
+                    sortedEmployees = this.sortByWorkload(roleEmployees, date);
+                    break;
+                case 'seniority':
+                    sortedEmployees = this.sortBySeniority(roleEmployees);
+                    break;
+                case 'preference':
+                    sortedEmployees = this.sortByPreference(roleEmployees, shiftTypeId);
+                    break;
+                default: // round-robin
+                    sortedEmployees = this.sortByRotation(roleEmployees, date);
+            }
+
+            // Check how many are needed
+            const currentAssigned = this.getShiftsForDate(date).filter(s => 
+                s.shiftTypeId === shiftTypeId &&
+                this.getEmployees().find(emp => emp.id === s.employeeId)?.roleId === rule.roleId
+            ).length;
+            
+            const needed = rule.minRequired - currentAssigned;
+            
+            if (needed > 0) {
+                for (let i = 0; i < Math.min(needed, sortedEmployees.length); i++) {
+                    const employee = sortedEmployees[i];
+                    const validation = this.validateShiftAssignment(
+                        { shiftTypeId, employeeId: employee.id },
+                        employee.id,
+                        date
+                    );
+                    
+                    if (validation.valid) {
+                        suggestions.push({
+                            employeeId: employee.id,
+                            employeeName: employee.name,
+                            role: this.getEmployees().find(r => r.id === employee.roleId)?.name,
+                            priority: i + 1,
+                            reason: `Required ${rule.roleId} for ${shiftType.name}`
+                        });
+                    }
+                }
+            }
+        });
+
+        return suggestions;
+    },
+
+    sortByWorkload: function(employees, currentDate) {
+        // Sort by least worked hours in current week
+        const weekStart = new Date(currentDate);
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+        
+        return employees.sort((a, b) => {
+            const aHours = this.calculateWeeklyHours(a.id, weekStart);
+            const bHours = this.calculateWeeklyHours(b.id, weekStart);
+            return aHours - bHours;
+        });
+    },
+
+    sortBySeniority: function(employees) {
+        // Sort by employee creation date (assuming earlier = senior)
+        return employees.sort((a, b) => {
+            // Extract timestamp from ID or use creation order
+            const aTime = parseInt(a.id.split('_')[1]) || 0;
+            const bTime = parseInt(b.id.split('_')[1]) || 0;
+            return aTime - bTime;
+        });
+    },
+
+    sortByRotation: function(employees, currentDate) {
+        // Simple round-robin based on date and employee count
+        const daysSinceEpoch = Math.floor(new Date(currentDate).getTime() / (1000 * 60 * 60 * 24));
+        const rotationIndex = daysSinceEpoch % employees.length;
+        
+        return [...employees.slice(rotationIndex), ...employees.slice(0, rotationIndex)];
+    },
+
+    sortByPreference: function(employees, shiftTypeId) {
+        // For now, just return employees as-is
+        // In a full implementation, this would check employee preferences
+        return employees;
+    },
+
+    calculateWeeklyHours: function(employeeId, weekStart) {
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        
+        let totalHours = 0;
+        const shifts = this.getAllShifts().filter(shift => {
+            const shiftDate = new Date(shift.date);
+            return shift.employeeId === employeeId && 
+                   shiftDate >= weekStart && 
+                   shiftDate <= weekEnd;
+        });
+        
+        shifts.forEach(shift => {
+            const shiftType = this.getShiftTypes().find(st => st.id === shift.shiftTypeId);
+            totalHours += this.calculateShiftDuration(shiftType);
+        });
+        
+        return totalHours;
+    },
+
     getAllShifts: function() {
         let allShifts = [];
         for (const date in this.shifts) {

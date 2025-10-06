@@ -85,6 +85,205 @@
                 </div>
             </section>
 
+            <!-- Advanced Shift Rules Configuration -->
+            <section class="settings-section">
+                <h2>Advanced Shift Rules</h2>
+                <div class="shift-rules-grid">
+                    <div class="shift-capacity-rules">
+                        <h3>Shift Capacity & Role Requirements</h3>
+                        <table id="shift-capacity-table">
+                            <thead>
+                                <tr>
+                                    <th>Shift Type</th>
+                                    <th>Role</th>
+                                    <th>Min Required</th>
+                                    <th>Max Allowed</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div class="add-capacity-rule">
+                            <select id="capacity-shift-select"></select>
+                            <select id="capacity-role-select"></select>
+                            <input type="number" id="min-capacity" placeholder="Min" min="0" max="50">
+                            <input type="number" id="max-capacity" placeholder="Max" min="1" max="50">
+                            <button id="add-capacity-rule-btn">Add Rule</button>
+                        </div>
+                    </div>
+                    <div class="shift-constraints">
+                        <h3>Time Constraints</h3>
+                        <label>Minimum Hours Between Shifts: <input type="number" id="min-hours-between" min="1" max="168" value="8"></label>
+                        <label>Maximum Consecutive Work Days: <input type="number" id="max-consecutive-days" min="1" max="30" value="7"></label>
+                        <label>Maximum Hours Per Week: <input type="number" id="max-weekly-hours" min="1" max="168" value="40"></label>
+                        <label>Maximum Hours Per Day: <input type="number" id="max-daily-hours" min="1" max="24" value="12"></label>
+                        <button id="save-constraints-btn">Save Constraints</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Shift Patterns & Templates -->
+            <section class="settings-section">
+                <h2>Shift Patterns & Templates</h2>
+                <div class="shift-patterns-grid">
+                    <div class="pattern-templates">
+                        <h3>Schedule Templates</h3>
+                        <table id="shift-templates-table">
+                            <thead>
+                                <tr>
+                                    <th>Template Name</th>
+                                    <th>Pattern Type</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div class="add-template-form">
+                            <input type="text" id="template-name" placeholder="Template Name">
+                            <select id="template-pattern-type">
+                                <option value="rotating">Rotating Schedule</option>
+                                <option value="fixed">Fixed Schedule</option>
+                                <option value="split">Split Schedule</option>
+                                <option value="custom">Custom Pattern</option>
+                            </select>
+                            <textarea id="template-description" placeholder="Describe the pattern (e.g., 2 days on, 2 days off)"></textarea>
+                            <button id="add-template-btn">Add Template</button>
+                        </div>
+                    </div>
+                    <div class="rotation-settings">
+                        <h3>Rotation Rules</h3>
+                        <label><input type="checkbox" id="enable-auto-rotation"> Enable Automatic Rotation</label>
+                        <label>Rotation Period (days): <input type="number" id="rotation-period" min="1" max="365" value="14"></label>
+                        <label>Rotation Start Date: <input type="date" id="rotation-start-date"></label>
+                        <label>Fairness Algorithm:
+                            <select id="fairness-algorithm">
+                                <option value="round-robin">Round Robin</option>
+                                <option value="balanced-workload">Balanced Workload</option>
+                                <option value="seniority">Seniority Based</option>
+                                <option value="preference">Employee Preference</option>
+                            </select>
+                        </label>
+                        <button id="save-rotation-settings-btn">Save Rotation Settings</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Department & Location Management -->
+            <section class="settings-section">
+                <h2>Departments & Locations</h2>
+                <div class="dept-location-grid">
+                    <div class="departments">
+                        <h3>Departments</h3>
+                        <table id="departments-table">
+                            <thead>
+                                <tr>
+                                    <th>Department Name</th>
+                                    <th>Manager</th>
+                                    <th>Budget Code</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div class="add-department-form">
+                            <input type="text" id="dept-name" placeholder="Department Name">
+                            <select id="dept-manager-select"></select>
+                            <input type="text" id="dept-budget-code" placeholder="Budget Code">
+                            <button id="add-department-btn">Add Department</button>
+                        </div>
+                    </div>
+                    <div class="locations">
+                        <h3>Locations</h3>
+                        <table id="locations-table">
+                            <thead>
+                                <tr>
+                                    <th>Location Name</th>
+                                    <th>Address</th>
+                                    <th>Time Zone</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div class="add-location-form">
+                            <input type="text" id="location-name" placeholder="Location Name">
+                            <input type="text" id="location-address" placeholder="Address">
+                            <select id="location-timezone">
+                                <option value="America/New_York">Eastern Time</option>
+                                <option value="America/Chicago">Central Time</option>
+                                <option value="America/Denver">Mountain Time</option>
+                                <option value="America/Los_Angeles">Pacific Time</option>
+                                <option value="UTC">UTC</option>
+                            </select>
+                            <button id="add-location-btn">Add Location</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compliance & Break Rules -->
+            <section class="settings-section">
+                <h2>Compliance & Break Rules</h2>
+                <div class="compliance-grid">
+                    <div class="break-rules">
+                        <h3>Break & Meal Policies</h3>
+                        <label>Minimum Break Duration (minutes): <input type="number" id="min-break-duration" min="15" max="120" value="15"></label>
+                        <label>Break Frequency (hours worked): <input type="number" id="break-frequency" min="2" max="8" value="4"></label>
+                        <label>Meal Break Duration (minutes): <input type="number" id="meal-break-duration" min="30" max="90" value="30"></label>
+                        <label>Meal Break Required After (hours): <input type="number" id="meal-break-after" min="4" max="8" value="6"></label>
+                        <label><input type="checkbox" id="unpaid-meal-breaks"> Meal breaks are unpaid</label>
+                        <button id="save-break-rules-btn">Save Break Rules</button>
+                    </div>
+                    <div class="overtime-rules">
+                        <h3>Overtime Policies</h3>
+                        <label>Regular Hours Per Day: <input type="number" id="regular-daily-hours" min="6" max="12" value="8"></label>
+                        <label>Regular Hours Per Week: <input type="number" id="regular-weekly-hours" min="20" max="60" value="40"></label>
+                        <label>Overtime Rate Multiplier: <input type="number" id="overtime-rate" min="1.0" max="3.0" step="0.1" value="1.5"></label>
+                        <label>Double Time After (hours): <input type="number" id="double-time-after" min="8" max="16" value="12"></label>
+                        <label><input type="checkbox" id="weekend-overtime"> Weekends count as overtime</label>
+                        <label><input type="checkbox" id="holiday-overtime"> Holidays count as overtime</label>
+                        <button id="save-overtime-rules-btn">Save Overtime Rules</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Shift Swap & Approval Workflows -->
+            <section class="settings-section">
+                <h2>Shift Swap & Approval Workflows</h2>
+                <div class="workflow-grid">
+                    <div class="swap-settings">
+                        <h3>Shift Swap Rules</h3>
+                        <label><input type="checkbox" id="enable-shift-swaps"> Enable Shift Swaps</label>
+                        <label>Swap Request Deadline (hours before shift): <input type="number" id="swap-deadline" min="1" max="168" value="24"></label>
+                        <label>Maximum Pending Swaps Per Employee: <input type="number" id="max-pending-swaps" min="1" max="10" value="3"></label>
+                        <label>Approval Required:
+                            <select id="swap-approval-level">
+                                <option value="none">No Approval</option>
+                                <option value="manager">Manager Approval</option>
+                                <option value="hr">HR Approval</option>
+                                <option value="both">Manager & HR Approval</option>
+                            </select>
+                        </label>
+                        <button id="save-swap-settings-btn">Save Swap Settings</button>
+                    </div>
+                    <div class="approval-workflow">
+                        <h3>Approval Workflow</h3>
+                        <label>Auto-approve swaps between same role: <input type="checkbox" id="auto-approve-same-role"></label>
+                        <label>Require department manager approval: <input type="checkbox" id="require-dept-approval"></label>
+                        <label>Approval Timeout (hours): <input type="number" id="approval-timeout" min="1" max="168" value="48"></label>
+                        <label>Notification Method:
+                            <select id="notification-method">
+                                <option value="in-app">In-App Only</option>
+                                <option value="email">Email</option>
+                                <option value="both">Both</option>
+                            </select>
+                        </label>
+                        <button id="save-workflow-settings-btn">Save Workflow Settings</button>
+                    </div>
+                </div>
+            </section>
+
             <!-- Backup Settings -->
             <section class="settings-section">
                 <h2>Data Backup & Restore</h2>

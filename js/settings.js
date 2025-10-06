@@ -240,7 +240,10 @@ $(document).ready(function() {
                     <td>${template.name}</td>
                     <td>${template.patternType}</td>
                     <td>${template.description}</td>
-                    <td><button class="delete-btn" data-type="shift-template" data-id="${template.id}">Delete</button></td>
+                    <td>
+                        <button class="delete-btn" data-type="shift-template" data-id="${template.id}">Delete</button>
+                        <button class="preview-template-btn" data-id="${template.id}">Preview</button>
+                    </td>
                 </tr>
             `;
             templatesTableBody.append(row);
@@ -251,6 +254,37 @@ $(document).ready(function() {
         $('#rotation-period').val(settings.rotationSettings.rotationPeriod);
         $('#rotation-start-date').val(settings.rotationSettings.rotationStartDate || '');
         $('#fairness-algorithm').val(settings.rotationSettings.fairnessAlgorithm);
+        
+        // Update pattern configuration dropdowns
+        updatePatternConfigDropdowns();
+        
+        // Update apply template dropdown
+        const applySelect = $('#apply-template-select');
+        applySelect.empty().append('<option value="">Select a Template</option>');
+        settings.shiftTemplates.forEach(template => {
+            applySelect.append(`<option value="${template.id}">${template.name}</option>`);
+        });
+        
+        // Update apply employees dropdown
+        const employeesSelect = $('#apply-employees-select');
+        employeesSelect.empty();
+        settings.employees.forEach(emp => {
+            employeesSelect.append(`<option value="${emp.id}">${emp.name}</option>`);
+        });
+    }
+
+    function updatePatternConfigDropdowns() {
+        // Update shift type dropdowns
+        const rotatingSelect = $('#rotating-shift-select');
+        const dayShiftSelects = $('.day-shift-select');
+        
+        rotatingSelect.empty();
+        dayShiftSelects.empty();
+        
+        settings.shiftTypes.forEach(st => {
+            rotatingSelect.append(`<option value="${st.id}">${st.name}</option>`);
+            dayShiftSelects.append(`<option value="${st.id}">${st.name}</option>`);
+        });
     }
 
     function renderDepartments() {
@@ -355,8 +389,17 @@ $(document).ready(function() {
          $('#save-swap-settings-btn').on('click', saveSwapSettings);
          $('#save-workflow-settings-btn').on('click', saveWorkflowSettings);
 
+         // Pattern management event listeners
+         $('#template-pattern-type').on('change', togglePatternConfig);
+         $('#apply-pattern-btn').on('click', applySelectedPattern);
+         $('#preview-pattern-btn').on('click', previewSelectedPattern);
+         $('.use-pattern-btn').on('click', usePredefinedPattern);
+         $('#add-custom-rule-btn').on('click', addCustomRule);
+
          // Use event delegation for delete buttons since they are created dynamically
          $('.settings-content').on('click', '.delete-btn', handleDelete);
+         $('.settings-content').on('click', '.remove-rule-btn', removeCustomRule);
+         $('.settings-content').on('click', '.preview-template-btn', previewTemplate);
      }
 
     // --- HANDLERS ---
@@ -420,17 +463,266 @@ $(document).ready(function() {
         const description = $('#template-description').val().trim();
 
         if (name && patternType && description) {
-            settings.shiftTemplates.push({
+            const template = {
                 id: `template_${Date.now()}`,
                 name,
                 patternType,
                 description
-            });
+            };
+
+            // Add pattern-specific configuration
+            switch(patternType) {
+                case 'rotating':
+                    template.pattern = $('#rotating-pattern').val().split(',').map(v => parseInt(v.trim()));
+                    template.offset = parseInt($('#rotating-offset').val()) || 0;
+                    template.defaultShiftTypeId = $('#rotating-shift-select').val();
+                    break;
+                case 'fixed':
+                    template.weeklySchedule = {};
+                    $('.day-schedule').each(function() {
+                        const day = $(this).data('day');
+                        const selectedShifts = $(this).find('.day-shift-select').val() || [];
+                        if (selectedShifts.length > 0) {
+                            template.weeklySchedule[day] = selectedShifts.map(shiftId => ({ shiftTypeId: shiftId }));
+                        }
+                    });
+                    break;
+                case 'split':
+                    template.shiftRotation = $('#split-rotation').val().split(',').map(s => s.trim());
+                    template.includeWeekends = $('#split-weekends').is(':checked');
+                    break;
+                case 'custom':
+                    template.customRules = getCurrentCustomRules();
+                    break;
+            }
+
+            settings.shiftTemplates.push(template);
             saveSettings();
             $('#template-name, #template-description').val('');
+            resetPatternConfig();
         } else {
             alert('Please provide name, pattern type and description.');
         }
+    }
+
+    function togglePatternConfig() {
+        const selectedType = $('#template-pattern-type').val();
+        $('.pattern-config-option').hide();
+        $(`#${selectedType}-config`).show();
+    }
+
+    function resetPatternConfig() {
+        $('#rotating-pattern').val('1,1,0,0');
+        $('#rotating-offset').val('2');
+        $('#split-rotation').val('Morning,Evening,Night');
+        $('#split-weekends').prop('checked', false);
+        $('.day-shift-select').val([]);
+        $('#custom-rules-list').empty();
+    }
+
+    async function applySelectedPattern() {
+        if (!hasRole(['Manager', 'Super Admin'])) {
+            alert('You do not have permission to apply patterns.');
+            return;
+        }
+
+        const templateId = $('#apply-template-select').val();
+        const startDate = $('#apply-start-date').val();
+        const endDate = $('#apply-end-date').val();
+        const selectedEmployees = $('#apply-employees-select').val() || [];
+        const overwrite = $('#overwrite-existing').is(':checked');
+
+        if (!templateId || !startDate || !endDate) {
+            alert('Please select template and date range.');
+            return;
+        }
+
+        if (!confirm('This will generate shifts based on the selected pattern. Continue?')) {
+            return;
+        }
+
+        try {
+            const result = await ShiftPatterns.bulkApplyPattern(templateId, startDate, endDate, {
+                employeeIds: selectedEmployees.length > 0 ? selectedEmployees : null,
+                overwrite: overwrite
+            });
+
+            if (result.success) {
+                alert(`Success! Generated ${result.shiftsGenerated} shifts using the pattern.`);
+            } else {
+                alert(`Error: ${result.error}`);
+            }
+        } catch (error) {
+            alert(`Error applying pattern: ${error.message}`);
+        }
+    }
+
+    function previewSelectedPattern() {
+        const templateId = $('#apply-template-select').val();
+        const startDate = $('#apply-start-date').val();
+        const endDate = $('#apply-end-date').val();
+        const selectedEmployees = $('#apply-employees-select').val() || [];
+
+        if (!templateId || !startDate || !endDate) {
+            alert('Please select template and date range.');
+            return;
+        }
+
+        try {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const durationDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            
+            const analysis = ShiftPatterns.analyzePatternCoverage(templateId, start, durationDays);
+            displayPatternPreview(analysis, start, durationDays);
+            $('#pattern-preview').show();
+        } catch (error) {
+            alert(`Error previewing pattern: ${error.message}`);
+        }
+    }
+
+    function displayPatternPreview(analysis, startDate, durationDays) {
+        // Display analysis summary
+        const analysisHtml = `
+            <div class="analysis-summary">
+                <p><strong>Total Shifts:</strong> ${analysis.totalShifts}</p>
+                <p><strong>Pattern Coverage:</strong> ${Object.keys(analysis.coverage).length} days</p>
+                <p><strong>Employees Involved:</strong> ${Object.keys(analysis.employeeWorkload).length}</p>
+            </div>
+        `;
+        $('#preview-analysis').html(analysisHtml);
+
+        // Create preview table
+        const table = $('#preview-table');
+        const headerRow = $('#preview-header');
+        const bodySection = $('#preview-body');
+        
+        // Clear previous content
+        headerRow.empty();
+        bodySection.empty();
+
+        // Build header with dates
+        headerRow.append('<th>Employee</th>');
+        for (let day = 0; day < Math.min(durationDays, 14); day++) { // Show max 14 days
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + day);
+            headerRow.append(`<th>${date.toLocaleDateString()}</th>`);
+        }
+
+        // Build rows for each employee
+        Object.entries(analysis.employeeWorkload).forEach(([empId, workload]) => {
+            const row = $(`<tr><td>${workload.name}</td></tr>`);
+            
+            for (let day = 0; day < Math.min(durationDays, 14); day++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + day);
+                const dateStr = date.toISOString().slice(0, 10);
+                
+                const hasShift = workload.shiftDates.includes(dateStr);
+                const cellContent = hasShift ? '✓' : '';
+                const cellClass = hasShift ? 'has-shift' : 'no-shift';
+                row.append(`<td class="${cellClass}">${cellContent}</td>`);
+            }
+            
+            bodySection.append(row);
+        });
+    }
+
+    function usePredefinedPattern() {
+        const patternKey = $(this).closest('.pattern-card').data('pattern');
+        const predefinedPatterns = ShiftPatterns.getPredefinedPatterns();
+        const pattern = predefinedPatterns[patternKey];
+        
+        if (pattern) {
+            $('#template-name').val(pattern.name);
+            $('#template-pattern-type').val(pattern.type);
+            $('#template-description').val(pattern.description);
+            
+            if (pattern.type === 'rotating' && pattern.pattern) {
+                $('#rotating-pattern').val(pattern.pattern.join(','));
+            }
+            
+            togglePatternConfig();
+        }
+    }
+
+    function addCustomRule() {
+        const ruleHtml = `
+            <div class="custom-rule">
+                <h5>Custom Rule ${$('#custom-rules-list .custom-rule').length + 1}</h5>
+                <label>Rule Name: <input type="text" class="rule-name" placeholder="Rule Name"></label>
+                <label>Shift Type: <select class="rule-shift-type"></select></label>
+                <label>Apply to Roles: <select class="rule-roles" multiple></select></label>
+                <label>Days of Week: <select class="rule-days" multiple>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                </select></label>
+                <label>Frequency (every N days): <input type="number" class="rule-frequency" min="1" value="1"></label>
+                <button class="remove-rule-btn">Remove Rule</button>
+            </div>
+        `;
+        
+        $('#custom-rules-list').append(ruleHtml);
+        
+        // Populate dropdowns in the new rule
+        const newRule = $('#custom-rules-list .custom-rule').last();
+        const shiftSelect = newRule.find('.rule-shift-type');
+        const roleSelect = newRule.find('.rule-roles');
+        
+        settings.shiftTypes.forEach(st => {
+            shiftSelect.append(`<option value="${st.id}">${st.name}</option>`);
+        });
+        
+        settings.roles.forEach(role => {
+            roleSelect.append(`<option value="${role.id}">${role.name}</option>`);
+        });
+    }
+
+    function getCurrentCustomRules() {
+        const rules = [];
+        $('#custom-rules-list .custom-rule').each(function() {
+            const rule = {
+                id: `rule_${Date.now()}_${Math.random()}`,
+                name: $(this).find('.rule-name').val(),
+                shiftTypeId: $(this).find('.rule-shift-type').val(),
+                roleIds: $(this).find('.rule-roles').val() || [],
+                dayOfWeek: $(this).find('.rule-days').val() || [],
+                frequency: parseInt($(this).find('.rule-frequency').val()) || 1
+            };
+            
+            if (rule.name && rule.shiftTypeId) {
+                rules.push(rule);
+            }
+        });
+        
+        return rules;
+    }
+
+    function removeCustomRule() {
+        $(this).closest('.custom-rule').remove();
+    }
+
+    function previewTemplate() {
+        const templateId = $(this).data('id');
+        $('#apply-template-select').val(templateId);
+        
+        // Set default dates (next 14 days)
+        const today = new Date();
+        const twoWeeksLater = new Date(today.getTime() + (14 * 24 * 60 * 60 * 1000));
+        
+        $('#apply-start-date').val(today.toISOString().slice(0, 10));
+        $('#apply-end-date').val(twoWeeksLater.toISOString().slice(0, 10));
+        
+        // Trigger preview
+        previewSelectedPattern();
+        
+        // Scroll to preview section
+        $('#pattern-preview')[0].scrollIntoView({ behavior: 'smooth' });
     }
 
     function saveRotationSettings() {

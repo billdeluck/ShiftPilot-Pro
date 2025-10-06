@@ -148,7 +148,111 @@
                                 <option value="custom">Custom Pattern</option>
                             </select>
                             <textarea id="template-description" placeholder="Describe the pattern (e.g., 2 days on, 2 days off)"></textarea>
+                            <div id="pattern-config" class="pattern-config-section">
+                                <h4>Pattern Configuration</h4>
+                                <div id="rotating-config" class="pattern-config-option">
+                                    <label>Pattern (1=work, 0=off): <input type="text" id="rotating-pattern" placeholder="1,1,0,0" value="1,1,0,0"></label>
+                                    <label>Offset between employees: <input type="number" id="rotating-offset" min="0" max="30" value="2"></label>
+                                    <label>Default Shift Type: <select id="rotating-shift-select"></select></label>
+                                </div>
+                                <div id="fixed-config" class="pattern-config-option" style="display: none;">
+                                    <h5>Weekly Schedule</h5>
+                                    <div class="weekly-schedule">
+                                        <div class="day-schedule" data-day="Monday">
+                                            <label>Monday:</label>
+                                            <select class="day-shift-select" multiple></select>
+                                        </div>
+                                        <div class="day-schedule" data-day="Tuesday">
+                                            <label>Tuesday:</label>
+                                            <select class="day-shift-select" multiple></select>
+                                        </div>
+                                        <div class="day-schedule" data-day="Wednesday">
+                                            <label>Wednesday:</label>
+                                            <select class="day-shift-select" multiple></select>
+                                        </div>
+                                        <div class="day-schedule" data-day="Thursday">
+                                            <label>Thursday:</label>
+                                            <select class="day-shift-select" multiple></select>
+                                        </div>
+                                        <div class="day-schedule" data-day="Friday">
+                                            <label>Friday:</label>
+                                            <select class="day-shift-select" multiple></select>
+                                        </div>
+                                        <div class="day-schedule" data-day="Saturday">
+                                            <label>Saturday:</label>
+                                            <select class="day-shift-select" multiple></select>
+                                        </div>
+                                        <div class="day-schedule" data-day="Sunday">
+                                            <label>Sunday:</label>
+                                            <select class="day-shift-select" multiple></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="split-config" class="pattern-config-option" style="display: none;">
+                                    <label>Shift Rotation Order: <input type="text" id="split-rotation" placeholder="Morning,Evening,Night" value="Morning,Evening,Night"></label>
+                                    <label><input type="checkbox" id="split-weekends"> Include Weekends</label>
+                                </div>
+                                <div id="custom-config" class="pattern-config-option" style="display: none;">
+                                    <button type="button" id="add-custom-rule-btn">Add Custom Rule</button>
+                                    <div id="custom-rules-list"></div>
+                                </div>
+                            </div>
                             <button id="add-template-btn">Add Template</button>
+                        </div>
+                        
+                        <!-- Pattern Application Section -->
+                        <div class="pattern-application">
+                            <h4>Apply Pattern to Schedule</h4>
+                            <div class="apply-form">
+                                <select id="apply-template-select">
+                                    <option value="">Select a Template</option>
+                                </select>
+                                <label>Start Date: <input type="date" id="apply-start-date"></label>
+                                <label>End Date: <input type="date" id="apply-end-date"></label>
+                                <label>Select Employees: <select id="apply-employees-select" multiple></select></label>
+                                <label><input type="checkbox" id="overwrite-existing"> Overwrite existing shifts</label>
+                                <button id="apply-pattern-btn">Apply Pattern</button>
+                                <button id="preview-pattern-btn">Preview Pattern</button>
+                            </div>
+                            
+                            <!-- Pattern Preview -->
+                            <div id="pattern-preview" class="pattern-preview-section" style="display: none;">
+                                <h5>Pattern Preview</h5>
+                                <div id="preview-analysis"></div>
+                                <table id="preview-table">
+                                    <thead>
+                                        <tr id="preview-header"></tr>
+                                    </thead>
+                                    <tbody id="preview-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Predefined Patterns -->
+                        <div class="predefined-patterns">
+                            <h4>Predefined Industry Patterns</h4>
+                            <div class="pattern-gallery">
+                                <div class="pattern-card" data-pattern="continental">
+                                    <h5>Continental Rotation</h5>
+                                    <p>2-2-3 rotating schedule (2 days on, 2 off, 3 on, 2 off, 2 on, 3 off)</p>
+                                    <button class="use-pattern-btn">Use This Pattern</button>
+                                </div>
+                                <div class="pattern-card" data-pattern="panama">
+                                    <h5>Panama Schedule</h5>
+                                    <p>2-2-3 schedule with 12-hour shifts</p>
+                                    <button class="use-pattern-btn">Use This Pattern</button>
+                                </div>
+                                <div class="pattern-card" data-pattern="pitman">
+                                    <h5>Pitman Schedule</h5>
+                                    <p>2-3-2 rotating schedule</p>
+                                    <button class="use-pattern-btn">Use This Pattern</button>
+                                </div>
+                                <div class="pattern-card" data-pattern="4-10">
+                                    <h5>4-10 Compressed</h5>
+                                    <p>4 days on, 10 hours each, 3 days off</p>
+                                    <button class="use-pattern-btn">Use This Pattern</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="rotation-settings">
@@ -325,7 +429,9 @@
     <script src="https://gildas-lormeau.github.io/zip.js/demos/lib/zip.min.js"></script>
     <script src="js/seed-data-loader.js"></script>
     <script src="js/auth.js"></script> <!-- Include auth.js -->
+    <script src="js/data-manager.js"></script> <!-- Include data manager -->
     <script src="js/backup.js"></script>
+    <script src="js/shift-patterns.js"></script> <!-- Include shift patterns engine -->
     <script src="js/settings.js"></script>
     <script>
         $(document).ready(function() {

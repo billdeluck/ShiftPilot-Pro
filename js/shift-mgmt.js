@@ -615,4 +615,458 @@ $(document).ready(function() {
         $('#shift-management-widget').prepend(`<div id="audit-log-modal" class="modal-overlay"><div class="modal-content">${html}</div></div>`);
         $('#close-audit-log').on('click', function(){ $('#audit-log-modal').remove(); });
     });
+
+    // --- INTELLIGENT SCHEDULING FUNCTIONALITY ---
+    
+    // Initialize intelligent scheduling controls
+    function initializeIntelligentScheduling() {
+        // Set default dates
+        const today = new Date();
+        const nextWeek = new Date(today.getTime() + (7 * 24 * 60 * 60 * 1000));
+        
+        $('#schedule-start-date').val(today.toISOString().slice(0, 10));
+        $('#schedule-end-date').val(nextWeek.toISOString().slice(0, 10));
+        
+        // Populate quick assignment dropdowns
+        populateQuickAssignmentDropdowns();
+        
+        // Event listeners for intelligent scheduling
+        $('#generate-schedule-btn').on('click', generateOptimalSchedule);
+        $('#preview-schedule-btn').on('click', previewSchedule);
+        $('#analyze-current-btn').on('click', analyzeCurrentSchedule);
+        $('#suggest-employees-btn').on('click', suggestEmployeesForShift);
+        $('#apply-preview-btn').on('click', applyPreviewedSchedule);
+        $('#cancel-preview-btn').on('click', cancelSchedulePreview);
+    }
+
+    function populateQuickAssignmentDropdowns() {
+        const shiftTypes = DataManager.getShiftTypes();
+        const quickShiftSelect = $('#quick-shift-type-select');
+        
+        quickShiftSelect.empty().append('<option value="">Select Shift Type</option>');
+        shiftTypes.forEach(st => {
+            quickShiftSelect.append(`<option value="${st.id}">${st.name} (${st.startTime}-${st.endTime})</option>`);
+        });
+        
+        // Populate date dropdown with next 14 days
+        const quickDateSelect = $('#quick-date-select');
+        quickDateSelect.empty().append('<option value="">Select Date</option>');
+        
+        for (let i = 0; i < 14; i++) {
+            const date = new Date();
+            date.setDate(date.getDate() + i);
+            const dateStr = date.toISOString().slice(0, 10);
+            const dateLabel = date.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            quickDateSelect.append(`<option value="${dateStr}">${dateLabel}</option>`);
+        }
+    }
+
+    async function generateOptimalSchedule() {
+        if (!hasRole(['Manager', 'Super Admin'])) {
+            alert('You do not have permission to generate schedules.');
+            return;
+        }
+
+        const startDate = new Date($('#schedule-start-date').val());
+        const endDate = new Date($('#schedule-end-date').val());
+        const algorithm = $('#scheduling-algorithm').val();
+        const includeWeekends = $('#include-weekends').is(':checked');
+        const overwrite = $('#overwrite-schedule').is(':checked');
+
+        if (!startDate || !endDate || startDate >= endDate) {
+            alert('Please select a valid date range.');
+            return;
+        }
+
+        if (!overwrite) {
+            // Check for existing shifts in the date range
+            const hasExisting = checkForExistingShifts(startDate, endDate);
+            if (hasExisting && !confirm('There are existing shifts in this date range. This will only fill gaps. Continue?')) {
+                return;
+            }
+        }
+
+        try {
+            showSchedulingProgress('Generating optimal schedule...');
+            
+            const result = SchedulingEngine.generateOptimalSchedule(startDate, endDate, {
+                algorithm: algorithm,
+                includeWeekends: includeWeekends,
+                overwriteExisting: overwrite
+            });
+
+            hideSchedulingProgress();
+            
+            if (result.errors.length > 0) {
+                alert(`Schedule generation completed with ${result.errors.length} errors. Check the analysis for details.`);
+            }
+
+            // Apply the generated schedule
+            await applyGeneratedSchedule(result.schedule, overwrite);
+            
+            // Show analysis
+            displayScheduleAnalysis(result);
+            
+            // Refresh the shift table
+            renderShiftTable();
+            
+            alert(`Schedule generated successfully! ${result.summary.totalShifts} shifts created across ${result.summary.totalDays} days.`);
+
+        } catch (error) {
+            hideSchedulingProgress();
+            alert(`Error generating schedule: ${error.message}`);
+        }
+    }
+
+    function previewSchedule() {
+        const startDate = new Date($('#schedule-start-date').val());
+        const endDate = new Date($('#schedule-end-date').val());
+        const algorithm = $('#scheduling-algorithm').val();
+        const includeWeekends = $('#include-weekends').is(':checked');
+
+        if (!startDate || !endDate || startDate >= endDate) {
+            alert('Please select a valid date range.');
+            return;
+        }
+
+        try {
+            showSchedulingProgress('Generating schedule preview...');
+            
+            const result = SchedulingEngine.generateOptimalSchedule(startDate, endDate, {
+                algorithm: algorithm,
+                includeWeekends: includeWeekends,
+                preview: true
+            });
+
+            hideSchedulingProgress();
+            
+            // Store preview data for later application
+            window.previewData = result;
+            
+            // Display preview
+            displaySchedulePreview(result);
+            $('#schedule-preview').show();
+            
+        } catch (error) {
+            hideSchedulingProgress();
+            alert(`Error generating preview: ${error.message}`);
+        }
+    }
+
+    function analyzeCurrentSchedule() {
+        const startDate = new Date($('#schedule-start-date').val());
+        const endDate = new Date($('#schedule-end-date').val());
+
+        if (!startDate || !endDate) {
+            // Analyze current week if no dates specified
+            const today = new Date();
+            const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
+            const weekEnd = new Date(weekStart.getTime() + (6 * 24 * 60 * 60 * 1000));
+            
+            $('#schedule-start-date').val(weekStart.toISOString().slice(0, 10));
+            $('#schedule-end-date').val(weekEnd.toISOString().slice(0, 10));
+        }
+
+        try {
+            const analysis = analyzeScheduleRange(startDate, endDate);
+            displayScheduleAnalysis(analysis);
+            $('#schedule-analysis').show();
+        } catch (error) {
+            alert(`Error analyzing schedule: ${error.message}`);
+        }
+    }
+
+    function suggestEmployeesForShift() {
+        const date = $('#quick-date-select').val();
+        const shiftTypeId = $('#quick-shift-type-select').val();
+
+        if (!date || !shiftTypeId) {
+            alert('Please select both date and shift type.');
+            return;
+        }
+
+        try {
+            const suggestions = DataManager.suggestOptimalShiftAssignment(shiftTypeId, date);
+            displayEmployeeSuggestions(suggestions, date, shiftTypeId);
+        } catch (error) {
+            alert(`Error generating suggestions: ${error.message}`);
+        }
+    }
+
+    function displayEmployeeSuggestions(suggestions, date, shiftTypeId) {
+        const suggestionsList = $('#employee-suggestions');
+        suggestionsList.empty();
+
+        if (suggestions.length === 0) {
+            suggestionsList.html('<p>No suitable employees found for this shift.</p>');
+            return;
+        }
+
+        let html = '<h4>Suggested Employees</h4>';
+        suggestions.forEach((suggestion, index) => {
+            html += `
+                <div class="suggestion-item" data-employee-id="${suggestion.employeeId}">
+                    <div class="suggestion-info">
+                        <strong>#${index + 1}: ${suggestion.employeeName}</strong>
+                        <span class="suggestion-role">${suggestion.role}</span>
+                        <span class="suggestion-reason">${suggestion.reason}</span>
+                    </div>
+                    <button class="assign-suggested-btn" data-employee-id="${suggestion.employeeId}" data-date="${date}" data-shift-type="${shiftTypeId}">
+                        Assign
+                    </button>
+                </div>
+            `;
+        });
+
+        suggestionsList.html(html);
+
+        // Add event listeners for assign buttons
+        $('.assign-suggested-btn').on('click', function() {
+            const employeeId = $(this).data('employee-id');
+            const assignDate = $(this).data('date');
+            const assignShiftType = $(this).data('shift-type');
+            
+            assignShiftFromSuggestion(employeeId, assignDate, assignShiftType);
+        });
+    }
+
+    async function assignShiftFromSuggestion(employeeId, date, shiftTypeId) {
+        try {
+            const employee = DataManager.getEmployees().find(e => e.id === employeeId);
+            const shiftType = DataManager.getShiftTypes().find(st => st.id === shiftTypeId);
+            
+            const shiftData = {
+                employeeId: employeeId,
+                employeeName: employee.name,
+                shiftTypeId: shiftTypeId,
+                shiftTypeName: shiftType.name,
+                status: 'Scheduled',
+                assignedBy: 'QuickAssign'
+            };
+
+            await DataManager.addShift(date, shiftData);
+            
+            // Refresh displays
+            renderShiftTable();
+            suggestEmployeesForShift(); // Refresh suggestions
+            
+            alert(`Successfully assigned ${employee.name} to ${shiftType.name} shift on ${date}.`);
+            
+        } catch (error) {
+            alert(`Error assigning shift: ${error.message}`);
+        }
+    }
+
+    function displayScheduleAnalysis(analysis) {
+        const summaryDiv = $('#analysis-summary');
+        const detailsDiv = $('#analysis-details');
+        const recommendationsDiv = $('#optimization-recommendations');
+
+        // Summary
+        let summaryHtml = `
+            <div class="analysis-cards">
+                <div class="analysis-card">
+                    <h4>Total Shifts</h4>
+                    <div class="metric">${analysis.summary.totalShifts}</div>
+                </div>
+                <div class="analysis-card">
+                    <h4>Days Covered</h4>
+                    <div class="metric">${analysis.summary.totalDays}</div>
+                </div>
+                <div class="analysis-card">
+                    <h4>Warning Rate</h4>
+                    <div class="metric">${analysis.summary.warningRate}%</div>
+                </div>
+                <div class="analysis-card">
+                    <h4>Optimization Score</h4>
+                    <div class="metric">${analysis.optimization?.overallScore || 'N/A'}</div>
+                </div>
+            </div>
+        `;
+        summaryDiv.html(summaryHtml);
+
+        // Details
+        let detailsHtml = '<h4>Workload Distribution</h4>';
+        if (analysis.summary.employeeWorkload) {
+            detailsHtml += '<div class="workload-chart">';
+            Object.entries(analysis.summary.employeeWorkload).forEach(([empId, shifts]) => {
+                const employee = DataManager.getEmployees().find(e => e.id === empId);
+                const name = employee ? employee.name : empId;
+                const percentage = analysis.summary.totalShifts > 0 ? 
+                    (shifts / analysis.summary.totalShifts * 100).toFixed(1) : 0;
+                
+                detailsHtml += `
+                    <div class="workload-bar">
+                        <span class="employee-name">${name}</span>
+                        <div class="bar-container">
+                            <div class="bar-fill" style="width: ${Math.min(percentage * 2, 100)}%"></div>
+                        </div>
+                        <span class="shift-count">${shifts} shifts (${percentage}%)</span>
+                    </div>
+                `;
+            });
+            detailsHtml += '</div>';
+        }
+        detailsDiv.html(detailsHtml);
+
+        // Recommendations
+        if (analysis.optimization?.recommendations) {
+            let recHtml = '<h4>Optimization Recommendations</h4><ul>';
+            analysis.optimization.recommendations.forEach(rec => {
+                recHtml += `<li>${rec}</li>`;
+            });
+            recHtml += '</ul>';
+            recommendationsDiv.html(recHtml);
+        }
+
+        $('#schedule-analysis').show();
+    }
+
+    function displaySchedulePreview(result) {
+        const previewTable = $('#preview-schedule-table');
+        const headerRow = $('#preview-schedule-header');
+        const bodySection = $('#preview-schedule-body');
+        
+        // Clear previous content
+        headerRow.empty();
+        bodySection.empty();
+
+        if (!result.schedule || result.schedule.length === 0) {
+            bodySection.html('<tr><td colspan="100%">No shifts to preview</td></tr>');
+            return;
+        }
+
+        // Build header with dates
+        headerRow.append('<th>Employee</th>');
+        result.schedule.forEach(day => {
+            const date = new Date(day.date);
+            headerRow.append(`<th>${date.toLocaleDateString()}</th>`);
+        });
+
+        // Build rows for each employee
+        const employees = DataManager.getEmployees();
+        employees.forEach(employee => {
+            const row = $(`<tr><td>${employee.name}</td></tr>`);
+            
+            result.schedule.forEach(day => {
+                const empShifts = day.shifts.filter(s => s.employeeId === employee.id);
+                let cellContent = '';
+                
+                if (empShifts.length > 0) {
+                    cellContent = empShifts.map(s => s.shiftTypeName).join(', ');
+                }
+                
+                const cellClass = empShifts.length > 0 ? 'has-shift' : 'no-shift';
+                row.append(`<td class="${cellClass}">${cellContent}</td>`);
+            });
+            
+            bodySection.append(row);
+        });
+    }
+
+    async function applyPreviewedSchedule() {
+        if (!window.previewData) {
+            alert('No preview data available.');
+            return;
+        }
+
+        if (!confirm('Apply the previewed schedule? This will create all the shifts shown in the preview.')) {
+            return;
+        }
+
+        try {
+            await applyGeneratedSchedule(window.previewData.schedule, false);
+            renderShiftTable();
+            cancelSchedulePreview();
+            alert('Schedule applied successfully!');
+        } catch (error) {
+            alert(`Error applying schedule: ${error.message}`);
+        }
+    }
+
+    function cancelSchedulePreview() {
+        $('#schedule-preview').hide();
+        window.previewData = null;
+    }
+
+    async function applyGeneratedSchedule(schedule, overwrite) {
+        for (const day of schedule) {
+            for (const shift of day.shifts) {
+                // Check if shift already exists (unless overwriting)
+                if (!overwrite) {
+                    const existing = DataManager.getShiftsForDate(day.date).find(s => 
+                        s.employeeId === shift.employeeId && s.shiftTypeId === shift.shiftTypeId
+                    );
+                    if (existing) {
+                        continue; // Skip existing shifts
+                    }
+                }
+                
+                await DataManager.addShift(day.date, shift);
+            }
+        }
+    }
+
+    function checkForExistingShifts(startDate, endDate) {
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+            const dateStr = currentDate.toISOString().slice(0, 10);
+            const shifts = DataManager.getShiftsForDate(dateStr);
+            if (shifts.length > 0) {
+                return true;
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return false;
+    }
+
+    function analyzeScheduleRange(startDate, endDate) {
+        // Create a mock result structure for existing schedule analysis
+        const schedule = [];
+        const currentDate = new Date(startDate);
+        
+        while (currentDate <= endDate) {
+            const dateStr = currentDate.toISOString().slice(0, 10);
+            const shifts = DataManager.getShiftsForDate(dateStr);
+            
+            schedule.push({
+                date: dateStr,
+                shifts: shifts,
+                coverage: {},
+                warnings: []
+            });
+            
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        return {
+            schedule: schedule,
+            summary: SchedulingEngine.generateScheduleSummary(schedule),
+            optimization: SchedulingEngine.analyzeScheduleOptimization(schedule)
+        };
+    }
+
+    function showSchedulingProgress(message) {
+        // Show a loading indicator
+        const progressHtml = `
+            <div id="scheduling-progress" class="progress-overlay">
+                <div class="progress-content">
+                    <div class="spinner"></div>
+                    <p>${message}</p>
+                </div>
+            </div>
+        `;
+        $('body').append(progressHtml);
+    }
+
+    function hideSchedulingProgress() {
+        $('#scheduling-progress').remove();
+    }
+
+    // Initialize intelligent scheduling when document is ready
+    initializeIntelligentScheduling();
 });

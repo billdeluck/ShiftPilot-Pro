@@ -39,6 +39,76 @@
         <input type="date" id="multi-day-end" placeholder="End Date" style="display:none;">
       </div>
     </div>
+    <!-- Intelligent Scheduling Section -->
+    <div id="intelligent-scheduling-section" class="scheduling-panel" style="margin-bottom: 2rem;">
+      <h2>Intelligent Scheduling</h2>
+      <div class="scheduling-controls">
+        <div class="schedule-generation">
+          <h3>Generate Optimal Schedule</h3>
+          <div class="schedule-form">
+            <div class="form-row">
+              <label>Start Date: <input type="date" id="schedule-start-date"></label>
+              <label>End Date: <input type="date" id="schedule-end-date"></label>
+              <label>Algorithm: 
+                <select id="scheduling-algorithm">
+                  <option value="balanced-workload">Balanced Workload</option>
+                  <option value="round-robin">Round Robin</option>
+                  <option value="seniority">Seniority Based</option>
+                  <option value="availability-score">Availability Score</option>
+                  <option value="skill-based">Skill Based</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-row">
+              <label><input type="checkbox" id="include-weekends"> Include Weekends</label>
+              <label><input type="checkbox" id="overwrite-schedule"> Overwrite Existing</label>
+            </div>
+            <div class="form-actions">
+              <button id="generate-schedule-btn">Generate Schedule</button>
+              <button id="preview-schedule-btn">Preview Only</button>
+              <button id="analyze-current-btn">Analyze Current Schedule</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="quick-assignment">
+          <h3>Quick Assignment</h3>
+          <div class="assignment-form">
+            <select id="quick-date-select"></select>
+            <select id="quick-shift-type-select"></select>
+            <button id="suggest-employees-btn">Suggest Employees</button>
+            <div id="employee-suggestions" class="suggestions-list"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Schedule Analysis Results -->
+      <div id="schedule-analysis" class="analysis-panel" style="display: none;">
+        <h3>Schedule Analysis</h3>
+        <div id="analysis-summary" class="analysis-summary"></div>
+        <div id="analysis-details" class="analysis-details"></div>
+        <div id="optimization-recommendations" class="recommendations"></div>
+      </div>
+      
+      <!-- Schedule Preview -->
+      <div id="schedule-preview" class="preview-panel" style="display: none;">
+        <h3>Schedule Preview</h3>
+        <div id="preview-controls">
+          <button id="apply-preview-btn">Apply Schedule</button>
+          <button id="modify-preview-btn">Modify</button>
+          <button id="cancel-preview-btn">Cancel</button>
+        </div>
+        <div id="preview-content">
+          <table id="preview-schedule-table">
+            <thead>
+              <tr id="preview-schedule-header"></tr>
+            </thead>
+            <tbody id="preview-schedule-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <div id="shift-management-widget">
       <table id="shift-table" aria-label="Shift table" tabindex="0">
         <thead>
@@ -142,7 +212,9 @@
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/data-manager.js"></script>
   <script src="js/settings.js"></script>
+  <script src="js/scheduling-engine.js"></script>
   <script src="js/nav-inject.js"></script>
   <script src="js/shift-mgmt.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
